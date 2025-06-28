@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 import { LabelM } from '../Typography';
 import { colors, spacing } from '../../index';
 
@@ -11,6 +11,7 @@ interface ButtonProps {
   onPress?: () => void;
   variant?: ButtonVariant;
   disabled?: boolean;
+  style?: ViewStyle;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -19,17 +20,36 @@ export const Button: React.FC<ButtonProps> = ({
   onPress,
   variant = 'primary',
   disabled = false,
+  style,
 }) => {
   const getBackgroundColor = () => {
-    if (selected) {
-      return colors.primary[400];
-    } else {
-      return 'rgba(0, 0, 0, 0.5)'; // black 50% 투명도
+    if (disabled) {
+      return colors.gray[200];
+    }
+    
+    switch (variant) {
+      case 'primary':
+        return colors.primary[400];
+      case 'secondary':
+        return colors.secondary[50];
+      default:
+        return colors.primary[400];
     }
   };
 
   const getTextColor = () => {
-    return colors.white;
+    if (disabled) {
+      return colors.gray[400];
+    }
+    
+    switch (variant) {
+      case 'primary':
+        return colors.white;
+      case 'secondary':
+        return colors.gray[900];
+      default:
+        return colors.white;
+    }
   };
 
   return (
@@ -38,6 +58,7 @@ export const Button: React.FC<ButtonProps> = ({
         styles.container,
         { backgroundColor: getBackgroundColor() },
         disabled && styles.disabled,
+        style,
       ]}
       onPress={onPress}
       disabled={disabled}

@@ -13,7 +13,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  initialRouteName: 'login',
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -22,6 +22,15 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     ...FontAwesome.font,
+    'Pretendard-Thin': require('../assets/fonts/Pretendard-Thin.ttf'),
+    'Pretendard-ExtraLight': require('../assets/fonts/Pretendard-ExtraLight.ttf'),
+    'Pretendard-Light': require('../assets/fonts/Pretendard-Light.ttf'),
+    'Pretendard-Regular': require('../assets/fonts/Pretendard-Regular.ttf'),
+    'Pretendard-Medium': require('../assets/fonts/Pretendard-Medium.ttf'),
+    'Pretendard-SemiBold': require('../assets/fonts/Pretendard-SemiBold.ttf'),
+    'Pretendard-Bold': require('../assets/fonts/Pretendard-Bold.ttf'),
+    'Pretendard-ExtraBold': require('../assets/fonts/Pretendard-ExtraBold.ttf'),
+    'Pretendard-Black': require('../assets/fonts/Pretendard-Black.ttf'),
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
@@ -47,6 +56,7 @@ function RootLayoutNav() {
     <ThemeProvider value={DefaultTheme}>
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
