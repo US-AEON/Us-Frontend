@@ -39,6 +39,13 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+      <Tabs.Screen
+        name="record"
+        options={{
+          title: '녹음',
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 } 

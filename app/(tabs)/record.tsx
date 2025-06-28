@@ -8,14 +8,15 @@ import { colors } from '@/shared/design';
 import { wp, hp, s, vs, ms } from '@/shared/lib/responsive';
 import { Typography } from '@/shared/design/components/Typography';
 import { TopNavBar } from '@/shared/design/components/Navigation/TopNavBar';
+import { BottomNavBar } from '@/shared/design/components/Navigation/BottomNavBar';
 import { useAudioRecording } from '@/hooks/useAudioRecording';
 import { useConversation } from '@/hooks/useConversation';
-import { useRouter } from 'expo-router';
+import useNavigation, { TabType } from '@/shared/hooks/useNavigation';
 
 type RecordingState = 'idle' | 'recording' | 'processing' | 'completed';
 
-export default function MicPage() {
-  const router = useRouter();
+export default function RecordPage() {
+  const { navigateToTab } = useNavigation('record');
   const [recordingState, setRecordingState] = useState<RecordingState>('idle');
   const buttonScale = useState(new Animated.Value(1))[0];
   
@@ -146,8 +147,7 @@ export default function MicPage() {
       <SafeAreaView style={styles.container}>
         {/* Top Navigation */}
         <TopNavBar onMenuPress={() => {
-          // API 테스트 페이지로 이동
-          router.push('/');
+          navigateToTab('home');
         }} />
         
         {/* Language Selection Bar */}
@@ -223,6 +223,12 @@ export default function MicPage() {
             </View>
           )}
         </View>
+
+        {/* 하단 네비게이션 바 */}
+        <BottomNavBar 
+          activeTab="record" 
+          onTabPress={(tab: TabType) => navigateToTab(tab)} 
+        />
 
       </SafeAreaView>
     </>
@@ -306,4 +312,4 @@ const styles = StyleSheet.create({
     borderRadius: s(8),
     alignItems: 'center',
   },
-});
+}); 
