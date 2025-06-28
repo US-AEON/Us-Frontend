@@ -1,20 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, TouchableOpacity, Image, Alert, View, Platform, Pressable } from 'react-native';
 import { BodyM } from '@/shared/design/components';
-import { colors,typography } from '@/shared/design';
+import { colors, typography } from '@/shared/design';
 import { s, vs } from '@/shared/utils/responsive';
 import { useRouter } from 'expo-router';
 import { login } from '@react-native-kakao/user';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { AuthService } from '@/services/api';
 import LogoSvg from '@/assets/icons/logo.svg';
+import PageIndicatorActive from '@/assets/images/page-indicator-active.svg';
+import PageIndicatorInactive from '@/assets/images/page-indicator-inactive.svg';
 
-const OnboardingImage = require('@/assets/images/onboarding.png');
+const OnboardingImages = [
+  require('@/assets/images/onboarding1.png'),
+  require('@/assets/images/onboarding2.png'),
+  require('@/assets/images/onboarding3.png'),
+];
+
+const OnboardingTexts = [
+  "지역 방언이 모국어로\n실시간 통역이되어 쉽게 소통할 수 있어요.",
+  "외국인과 고용주가 공지·질문을\n각자 언어로 쉽게 주고받을 수 있어요.",
+  "산재보험 정보를 모국어로 쉽게 보고,\n필요시 변호사 연결도 도와줘요."
+];
 
 export default function LoginScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [isKakaoReady, setIsKakaoReady] = useState(false);  
+  const [isKakaoReady, setIsKakaoReady] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const intervalRef = useRef<number | null>(null);  
 
   // 카카오 SDK 초기화
   useEffect(() => {
@@ -38,6 +52,21 @@ export default function LoginScreen() {
     };
 
     initKakao().catch(console.error);
+  }, []);
+
+  // 자동 슬라이드 기능
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setCurrentImageIndex(prevIndex => 
+        prevIndex === OnboardingImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 3000); // 3초마다 이미지 변경
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, []);
 
   // 카카오 로그인 처리
@@ -96,9 +125,37 @@ export default function LoginScreen() {
         <LogoSvg width={s(59)} height={s(30)} />
       </View>
       
-      {/* 온보딩 이미지 */}
+      {/* 온보딩 이미지 슬라이드 */}
       <View style={styles.onboardingContainer}>
-        <Image source={OnboardingImage} style={styles.onboardingImage} />
+        <Image source={OnboardingImages[currentImageIndex]} style={styles.onboardingImage} />
+        
+        {/* 설명 텍스트 */}
+        <View style={styles.textContainer}>
+          <BodyM style={styles.descriptionText}>
+            {OnboardingTexts[currentImageIndex]}
+          </BodyM>
+        </View>
+        
+        {/* 페이지 인디케이터 */}
+        <View style={styles.indicatorContainer}>
+          {OnboardingImages.map((_, index) => (
+            index === currentImageIndex ? (
+              <PageIndicatorActive 
+                key={index} 
+                width={s(24)} 
+                height={s(6)} 
+                style={styles.indicator}
+              />
+            ) : (
+              <PageIndicatorInactive 
+                key={index} 
+                width={s(6)} 
+                height={s(6)} 
+                style={styles.indicator}
+              />
+            )
+          ))}
+        </View>
       </View>
       
       {/* 카카오 로그인 버튼 */}
@@ -128,8 +185,8 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginTop: vs(88),
-    marginBottom: vs(40),
+    marginTop: vs(60),
+    marginBottom: vs(24),
   },
   onboardingContainer: {
     flex: 1,
@@ -137,13 +194,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   onboardingImage: {
-    width: s(300),
-    height: vs(400),
+    width: s(280),
+    height: vs(320),
     resizeMode: 'contain',
+  },
+  textContainer: {
+    marginTop: vs(32),
+    paddingHorizontal: s(20),
+    alignItems: 'center',
+  },
+  descriptionText: {
+    ...typography.titleL,
+    textAlign: 'center',
+    color: colors.black,
+  },
+  indicatorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: vs(40),
+    gap: s(8),
+  },
+  indicator: {
   },
   buttonContainer: {
     paddingHorizontal: s(20),
-    paddingBottom: vs(60),
+    paddingBottom: vs(40),
+    marginTop: vs(40),
   },
   kakaoButton: {
     flexDirection: 'row',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors, spacing } from '../../index';
-import HamburgerIcon from '@/assets/icons/Hamburger.svg';
+import ArrowLeftIcon from '@/assets/icons/Arrow_Left.svg';
 
 interface TopNavBarProps {
   onMenuPress?: () => void;
@@ -16,7 +16,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
         style={styles.menuButton}
         onPress={onMenuPress}
       >
-        <HamburgerIcon 
+        <ArrowLeftIcon 
           width={24} 
           height={24} 
           color={colors.primary[800]} 
