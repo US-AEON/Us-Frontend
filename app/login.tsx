@@ -5,21 +5,12 @@ import { colors, spacing } from '@/shared/design';
 import { useRouter } from 'expo-router';
 import { login } from '@react-native-kakao/user';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
-import { KAKAO_NATIVE_APP_KEY } from '@env';
-import { AuthService } from '@/services/api';
-
-// 카카오 SDK 초기화
-initializeKakaoSDK(KAKAO_NATIVE_APP_KEY);
+import { AUTH, AuthService } from '@/services/api';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [isKakaoReady, setIsKakaoReady] = useState(false);
-
-  /*  임시: 로그인 페이지 자동 우회  */
-  useEffect(() => {
-    router.replace('/(tabs)');
-  }, []);
+  const [isKakaoReady, setIsKakaoReady] = useState(false);  
 
   // 카카오 SDK 초기화
   useEffect(() => {
@@ -79,8 +70,6 @@ export default function LoginScreen() {
       setIsLoading(false);
     }
   };
-  
-
   const loginWithKakao = async (idToken: string) => {
     try {   
       await AuthService.kakaoLogin({ idToken });

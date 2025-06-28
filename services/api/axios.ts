@@ -1,5 +1,4 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { Config } from '../../constants/Config';
 import { AUTH } from './endpoints';
 import { RefreshTokenDto, StandardResponse } from './types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,7 +9,7 @@ const REFRESH_TOKEN_KEY = 'refresh_token';
 
 // axios 인스턴스 생성
 const apiClient: AxiosInstance = axios.create({
-  baseURL: Config.API_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -22,27 +21,49 @@ const apiClient: AxiosInstance = axios.create({
 export const tokenStorage = {
   // 액세스 토큰 저장
   setAccessToken: async (token: string): Promise<void> => {
-    await AsyncStorage.setItem(ACCESS_TOKEN_KEY, token);
+    try {
+      await AsyncStorage.setItem(ACCESS_TOKEN_KEY, token);
+    } catch (error) {
+      console.error('액세스 토큰 저장 실패:', error);
+    }
   },
   
   // 리프레시 토큰 저장
   setRefreshToken: async (token: string): Promise<void> => {
-    await AsyncStorage.setItem(REFRESH_TOKEN_KEY, token);
+    try {
+      await AsyncStorage.setItem(REFRESH_TOKEN_KEY, token);
+    } catch (error) {
+      console.error('리프레시 토큰 저장 실패:', error);
+    }
   },
   
   // 액세스 토큰 조회
   getAccessToken: async (): Promise<string | null> => {
-    return await AsyncStorage.getItem(ACCESS_TOKEN_KEY);
+    try {
+      return await AsyncStorage.getItem(ACCESS_TOKEN_KEY);
+    } catch (error) {
+      console.error('액세스 토큰 조회 실패:', error);
+      return null;
+    }
   },
   
   // 리프레시 토큰 조회
   getRefreshToken: async (): Promise<string | null> => {
-    return await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
+    try {
+      return await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
+    } catch (error) {
+      console.error('리프레시 토큰 조회 실패:', error);
+      return null;
+    }
   },
   
   // 모든 토큰 삭제 (로그아웃)
   clearTokens: async (): Promise<void> => {
-    await AsyncStorage.multiRemove([ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY]);
+    try {
+      await AsyncStorage.multiRemove([ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY]);
+    } catch (error) {
+      console.error('토큰 삭제 실패:', error);
+    }
   },
 };
 
@@ -60,7 +81,7 @@ const refreshAccessToken = async (): Promise<string> => {
     }
     
     const response = await axios.post<StandardResponse<{ access_token: string }>>(
-      `${Config.API_URL}${AUTH.REFRESH_TOKEN}`,
+      `${process.env.EXPO_PUBLIC_API_BASE_URL}${AUTH.REFRESH_TOKEN}`,
       { refreshToken } as RefreshTokenDto
     );
     
