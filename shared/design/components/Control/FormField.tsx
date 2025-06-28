@@ -28,7 +28,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   value = "",
   onChangeText,
   onClear,
-  helperText = "헬퍼 텍스트",
+  helperText,
   state = 'default',
   secureTextEntry = false,
   editable = true,
@@ -172,10 +172,12 @@ export const FormField: React.FC<FormFieldProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginBottom: spacing.md,
+    height: 79,
+    marginBottom: 24,
   },
   label: {
     marginBottom: spacing.xs,
+    height: 20, // Label height
   },
   inputContainer: {
     flexDirection: 'row',
@@ -185,7 +187,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    minHeight: 44,
+    height: 51, // 79 - 20 (label) - 8 (marginBottom) = 51
   },
   focused: {
     // 포커스 시 추가 스타일링이 필요하면 여기에
