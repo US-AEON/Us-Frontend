@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
+import { StyleSheet, ScrollView, View, Alert } from 'react-native';
 import { colors, typography } from '@/shared/design';
 import { s, vs } from '@/shared/utils/responsive';
 import { useRouter } from 'expo-router';
 import { FormField } from '@/shared/design/components/Control/FormField';
 import { Button } from '@/shared/design/components/Control/Button';
+import { Dropdown } from '@/shared/design/components/Control/Dropdown';
+import { UserService } from '@/services/api';
 import LogoSvg from '@/assets/icons/logo.svg';
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     birthdate: '',
@@ -17,6 +20,13 @@ export default function OnboardingScreen() {
     motherTongue: '',
   });
 
+  const languageOptions = [
+    { label: 'English', value: 'English' },
+    { label: 'ភាសាខ្មែរ', value: 'ភាសាខ្មែរ' },
+    { label: 'Tiếng Việt', value: 'Tiếng Việt' },
+    { label: '한국어', value: '한국어' },
+  ];
+
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -24,9 +34,37 @@ export default function OnboardingScreen() {
     }));
   };
 
-  const handleContinue = () => {
-    // 온보딩 완료 후 메인 페이지로 이동
-    router.replace('/(tabs)');
+  const handleContinue = async () => {
+    try {
+      setIsLoading(true);
+      
+      // 입력값 검증
+      if (!formData.name || !formData.birthdate || !formData.nationality || !formData.workLocation || !formData.motherTongue) {
+        Alert.alert('입력 오류', '모든 필드를 입력해주세요.');
+        return;
+      }
+
+      // birthdate를 년도로 변환
+      const birthYear = parseInt(formData.birthdate);
+      
+      // 프로필 업데이트 API 호출
+      await UserService.updateFullProfile({
+        name: formData.name,
+        birthYear: birthYear,
+        nationality: formData.nationality,
+        currentCity: formData.workLocation,
+        mainLanguage: formData.motherTongue,
+      });
+
+      // 성공 시 메인 페이지로 이동
+      router.replace('/(tabs)');
+      
+    } catch (error) {
+      console.error('프로필 업데이트 오류:', error);
+      Alert.alert('오류', '프로필 업데이트 중 문제가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -48,7 +86,7 @@ export default function OnboardingScreen() {
 
           <FormField
             label="Birthdate"
-            placeholder="YYYY-MM-DD"
+            placeholder="YYYY"
             value={formData.birthdate}
             onChangeText={(value) => handleInputChange('birthdate', value)}
           />
@@ -67,11 +105,12 @@ export default function OnboardingScreen() {
             onChangeText={(value) => handleInputChange('workLocation', value)}
           />
 
-          <FormField
+          <Dropdown
             label="Mother tongue"
-            placeholder="Enter your mother tongue"
+            placeholder="Select your mother tongue"
             value={formData.motherTongue}
-            onChangeText={(value) => handleInputChange('motherTongue', value)}
+            options={languageOptions}
+            onSelect={(value) => handleInputChange('motherTongue', value)}
           />
         </View>
       </ScrollView>
@@ -80,8 +119,9 @@ export default function OnboardingScreen() {
       <View style={styles.buttonContainer}>
         <Button
           variant="primary"
-          title="Continue"
+          title={isLoading ? "처리 중..." : "Continue"}
           onPress={handleContinue}
+          disabled={isLoading}
           style={styles.continueButton}
         />
       </View>
