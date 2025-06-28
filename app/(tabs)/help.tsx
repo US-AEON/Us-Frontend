@@ -16,29 +16,29 @@ const descriptions = {
   English: `The Industrial Accident Compensation Insurance (IACI) is a social insurance system that supports workers who get injured or become ill due to work. It covers not only accidents during work, but also work-related illnesses and commuting accidents. Foreign workers are also covered under the same legal obligations and rights. To apply, you must submit medical records, an application form, and proof of employment. You can apply online or at local branches.`,
   中国话: `产业灾害赔偿保险是国家为在工作中受伤或患病的劳动者提供治疗和生活费用的一种社会保障制度。外国劳动者也依法享有同样的权益。申请时需提交医疗记录、申请表和就业证明，可在线或到相关机关申请。`,
   'tiếng Việt': `Bảo hiểm tai nạn lao động là một chế độ hỗ trợ người lao động bị thương hoặc mắc bệnh khi làm việc. Người lao động nước ngoài cũng có quyền lợi như người Hàn. Để nộp đơn, cần hồ sơ y tế, đơn đăng ký và hợp đồng lao động. Có thể nộp trực tiếp hoặc trực tuyến.`,
-};
+} as const;
+
+type Language = keyof typeof descriptions;
 
 export default function HelpScreen() {
   const { navigateToTab } = useNavigation('help');
-  const [selectedLanguage, setSelectedLanguage] = useState('한국어');
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('한국어');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleTabPress = (tab: TabType) => {
     navigateToTab(tab);
   };
 
-  const languages = Object.keys(descriptions);
+  const languages: Language[] = Object.keys(descriptions) as Language[];
 
   return (
     <View style={styles.container}>
-      {/* 상단 헤더 */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>EMERGENT HELP</Text>
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
-          {/* 타이틀 */}
           <View style={styles.titleSection}>
             <TitleL color={colors.black} style={styles.titleText}>What is Korean IACI?</TitleL>
             <CaptionBL color={colors.gray[600]} style={styles.captionText}>
@@ -46,14 +46,12 @@ export default function HelpScreen() {
             </CaptionBL>
           </View>
 
-          {/* 간단 설명 */}
           <View style={styles.descriptionBox}>
             <Text style={styles.descriptionText}>
               If you get injured while working, you're eligible for compensation.
             </Text>
           </View>
 
-          {/* 언어 선택 */}
           <View style={styles.languageContainer}>
             <View style={styles.chipsContainer}>
               {languages.map((language) => (
@@ -67,7 +65,6 @@ export default function HelpScreen() {
             </View>
           </View>
 
-          {/* 긴 설명 */}
           <View style={styles.longDescriptionBox}>
             <Text
               style={styles.longDescriptionText}
@@ -78,7 +75,6 @@ export default function HelpScreen() {
             </Text>
           </View>
 
-          {/* 더보기 버튼 */}
           <TouchableOpacity
             style={styles.moreButton}
             onPress={() => setIsExpanded(!isExpanded)}
@@ -92,7 +88,6 @@ export default function HelpScreen() {
             />
           </TouchableOpacity>
 
-          {/* 캐릭터 + 변호사 */}
           <View style={styles.characterSection}>
             <Image source={Character2Image} style={styles.characterImage} />
             <LabelM color={colors.black} style={styles.lawyerText}>
