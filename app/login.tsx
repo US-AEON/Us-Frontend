@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, Image, Alert, View, Platform } from 'react-native';
-import { BodyM, HeadingS } from '@/shared/design/components';
-import { colors, spacing } from '@/shared/design';
+import { StyleSheet, TouchableOpacity, Image, Alert, View, Platform, Pressable } from 'react-native';
+import { BodyM } from '@/shared/design/components';
+import { colors,typography } from '@/shared/design';
+import { s, vs } from '@/shared/utils/responsive';
 import { useRouter } from 'expo-router';
 import { login } from '@react-native-kakao/user';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
-import { AUTH, AuthService } from '@/services/api';
+import { AuthService } from '@/services/api';
+import LogoSvg from '@/assets/icons/logo.svg';
+
+const OnboardingImage = require('@/assets/images/onboarding.png');
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -74,8 +78,8 @@ export default function LoginScreen() {
     try {   
       await AuthService.kakaoLogin({ idToken });
       
-      // 로그인 성공 후 메인 페이지로 이동
-      router.replace('/(tabs)');
+      // 로그인 성공 후 온보딩 페이지로 이동
+      router.replace('/onboarding' as never);
       
     } catch (error) {
       console.error('서버 통신 오류:', error);
@@ -87,23 +91,32 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
+      {/* 로고 */}
       <View style={styles.logoContainer}>
-        <HeadingS style={styles.subtitle}>카카오 로그인</HeadingS>
+        <LogoSvg width={s(59)} height={s(30)} />
       </View>
       
-      <TouchableOpacity
-        style={styles.kakaoButton}
-        onPress={handleKakaoLogin}
-        disabled={isLoading || !isKakaoReady}
-      >
-        <Image 
-          source={{ uri: 'https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png' }} 
-          style={styles.kakaoIcon} 
-        />
-        <BodyM style={styles.kakaoButtonText}>
-          {isLoading ? '로그인 중...' : (!isKakaoReady ? '준비 중...' : '카카오로 로그인')}
-        </BodyM>
-      </TouchableOpacity>
+      {/* 온보딩 이미지 */}
+      <View style={styles.onboardingContainer}>
+        <Image source={OnboardingImage} style={styles.onboardingImage} />
+      </View>
+      
+      {/* 카카오 로그인 버튼 */}
+      <View style={styles.buttonContainer}>
+        <Pressable
+          style={styles.kakaoButton}
+          onPress={handleKakaoLogin}
+          disabled={isLoading || !isKakaoReady}
+        >
+          <Image 
+            source={{ uri: 'https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png' }} 
+            style={styles.kakaoIcon} 
+          />
+          <BodyM style={styles.kakaoButtonText}>
+            {(!isKakaoReady ? '준비 중...' : '카카오톡으로 시작하기')}
+          </BodyM>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -111,36 +124,43 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
     backgroundColor: colors.white,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: spacing.xxl + spacing.md, // 60
+    marginTop: vs(88),
+    marginBottom: vs(40),
   },
-  subtitle: {
-    color: colors.gray[600],
+  onboardingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  onboardingImage: {
+    width: s(300),
+    height: vs(400),
+    resizeMode: 'contain',
+  },
+  buttonContainer: {
+    paddingHorizontal: s(20),
+    paddingBottom: vs(60),
   },
   kakaoButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FEE500',
-    borderRadius: 4,
-    padding: spacing.md,
+    borderRadius: s(28),
+    height: vs(46),
     width: '100%',
-    maxWidth: 280,
     justifyContent: 'center',
-    marginBottom: spacing.sm,
   },
   kakaoIcon: {
-    width: 24,
-    height: 24,
-    marginRight: spacing.md,
+    width: s(40),
+    height: s(40),
+    marginRight: s(4),
   },
   kakaoButtonText: {
+    ...typography.bodyM,
     color: '#3C1E1E',
-    fontWeight: '600',
   },
 }); 
