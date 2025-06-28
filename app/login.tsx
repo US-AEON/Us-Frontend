@@ -5,6 +5,11 @@ import { colors, spacing } from '@/shared/design';
 import { useRouter } from 'expo-router';
 import { login } from '@react-native-kakao/user';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
+import { KAKAO_NATIVE_APP_KEY } from '@env';
+import { AuthService } from '@/services/api';
+
+// 카카오 SDK 초기화
+initializeKakaoSDK(KAKAO_NATIVE_APP_KEY);
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -61,7 +66,7 @@ export default function LoginScreen() {
       console.log('카카오 로그인 성공, 토큰:', token.idToken ? '존재함' : '없음');
       
       if (token.idToken) {
-        await sendIdTokenToServer(token.idToken);
+        await loginWithKakao(token.idToken);
       } else {
         Alert.alert('오류', 'ID 토큰을 받지 못했습니다.');
         setIsLoading(false);
@@ -75,25 +80,10 @@ export default function LoginScreen() {
     }
   };
   
-  // 서버로 idToken 전송
-  const sendIdTokenToServer = async (idToken: string) => {
-    try {   
-      const API_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
-      if (!API_URL) {
-        throw new Error('API URL이 설정되지 않았습니다.');
-      }
 
-      const response = await fetch(`${API_URL}/auth/kakao`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ idToken }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('서버 응답 오류');
-      }
+  const loginWithKakao = async (idToken: string) => {
+    try {   
+      await AuthService.kakaoLogin({ idToken });
       
       // 로그인 성공 후 메인 페이지로 이동
       router.replace('/(tabs)');
