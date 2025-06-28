@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 export default {
   expo: {
     name: process.env.EXPO_PUBLIC_APP_NAME || "aeon-app",
@@ -52,6 +50,7 @@ export default {
         "@react-native-kakao/core",
         {
           nativeAppKey: process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY,
+          javascriptKey: process.env.EXPO_PUBLIC_KAKAO_JAVASCRIPT_APP_KEY,
           android: {
             authCodeHandlerActivity: true
           },

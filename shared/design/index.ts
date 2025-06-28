@@ -198,29 +198,35 @@ export const borderRadius = {
   full: 9999,
 } as const;
 
-// 섀도우
+// 플랫폼별 섀도우 스타일
+import { Platform } from 'react-native';
+
 export const shadows = {
-  sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
-  },
+  sm: Platform.select({
+    web: {
+      boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
+    },
+    default: {
+      // React Native에서는 elevation만 사용
+      elevation: 1,
+    },
+  }),
+  md: Platform.select({
+    web: {
+      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    },
+    default: {
+      elevation: 3,
+    },
+  }),
+  lg: Platform.select({
+    web: {
+      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.15)',
+    },
+    default: {
+      elevation: 5,
+    },
+  }),
 } as const;
 
 // 전체 디자인 시스템 export
