@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.aeonapp"
+      "bundleIdentifier": "com.anonymous.aeonapp",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "이 앱은 음성 번역을 위해 마이크 접근 권한이 필요합니다."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +26,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.aeonapp"
+      "package": "com.anonymous.aeonapp",
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "bundler": "metro",
@@ -45,7 +49,6 @@
       [
         "@react-native-kakao/core",
         {
-          "nativeAppKey": "0180fa89f0864888b5114ff40f4f2f96",
           "android": {
             "authCodeHandlerActivity": true
           },
@@ -53,7 +56,22 @@
             "handleKakaoOpenUrl": true
           }
         }
-      ]
+      ],
+      "expo-audio"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "fonts": [
+      "./assets/fonts/Pretendard-Thin.ttf",
+      "./assets/fonts/Pretendard-ExtraLight.ttf",
+      "./assets/fonts/Pretendard-Light.ttf",
+      "./assets/fonts/Pretendard-Regular.ttf",
+      "./assets/fonts/Pretendard-Medium.ttf",
+      "./assets/fonts/Pretendard-SemiBold.ttf",
+      "./assets/fonts/Pretendard-Bold.ttf",
+      "./assets/fonts/Pretendard-ExtraBold.ttf",
+      "./assets/fonts/Pretendard-Black.ttf"
     ]
   }
 }

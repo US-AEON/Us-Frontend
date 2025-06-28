@@ -1,24 +1,64 @@
-import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, TouchableOpacity, Image, Alert, View, Platform } from 'react-native';
+import { BodyM, HeadingS } from '@/shared/design/components';
+import { colors, spacing } from '@/shared/design';
 import { useRouter } from 'expo-router';
 import { login } from '@react-native-kakao/user';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
-import { API_URL, KAKAO_NATIVE_APP_KEY } from '@env';
-
-// 카카오 SDK 초기화
-initializeKakaoSDK(KAKAO_NATIVE_APP_KEY);
 
 export default function LoginScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isKakaoReady, setIsKakaoReady] = useState(false);
+
+  /*  임시: 로그인 페이지 자동 우회  */
+  useEffect(() => {
+    router.replace('/(tabs)');
+  }, []);
+
+  // 카카오 SDK 초기화
+  useEffect(() => {
+    const initKakao = async () => {
+      try {
+        const KAKAO_NATIVE_APP_KEY = process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY;
+        console.log('카카오 앱 키 확인:', KAKAO_NATIVE_APP_KEY ? '존재함' : '없음');
+        
+        if (KAKAO_NATIVE_APP_KEY) {
+          await initializeKakaoSDK(KAKAO_NATIVE_APP_KEY);
+          console.log('카카오 SDK 초기화 성공');
+          setIsKakaoReady(true);
+        } else {
+          console.error('카카오 앱 키가 설정되지 않았습니다.');
+          Alert.alert('설정 오류', '카카오 앱 키가 설정되지 않았습니다.');
+        }
+      } catch (error) {
+        console.error('카카오 SDK 초기화 실패:', error);
+        Alert.alert('초기화 오류', '카카오 SDK 초기화에 실패했습니다. Development build가 필요할 수 있습니다.');
+      }
+    };
+
+    initKakao().catch(console.error);
+  }, []);
 
   // 카카오 로그인 처리
   const handleKakaoLogin = async () => {
+    // 웹 플랫폼 체크
+    if (Platform.OS === 'web') {
+      Alert.alert('플랫폼 오류', '웹에서는 카카오 로그인이 지원되지 않습니다. 모바일 앱을 사용해주세요.');
+      return;
+    }
+
+    if (!isKakaoReady) {
+      Alert.alert('오류', '카카오 SDK가 준비되지 않았습니다.');
+      return;
+    }
+
     try {
       setIsLoading(true);
+      console.log('카카오 로그인 시도 중...');
       
       const token = await login();
+      console.log('카카오 로그인 성공, 토큰:', token.idToken ? '존재함' : '없음');
       
       if (token.idToken) {
         await sendIdTokenToServer(token.idToken);
@@ -29,7 +69,8 @@ export default function LoginScreen() {
       
     } catch (error) {
       console.error('카카오 로그인 오류:', error);
-      Alert.alert('오류', '카카오 로그인 중 문제가 발생했습니다.');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      Alert.alert('오류', `카카오 로그인 중 문제가 발생했습니다.\n${errorMessage}`);
       setIsLoading(false);
     }
   };
@@ -37,6 +78,11 @@ export default function LoginScreen() {
   // 서버로 idToken 전송
   const sendIdTokenToServer = async (idToken: string) => {
     try {   
+      const API_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+      if (!API_URL) {
+        throw new Error('API URL이 설정되지 않았습니다.');
+      }
+
       const response = await fetch(`${API_URL}/auth/kakao`, {
         method: 'POST',
         headers: {
@@ -63,21 +109,21 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Text style={styles.subtitle}>카카오 로그인</Text>
+        <HeadingS style={styles.subtitle}>카카오 로그인</HeadingS>
       </View>
       
       <TouchableOpacity
         style={styles.kakaoButton}
         onPress={handleKakaoLogin}
-        disabled={isLoading}
+        disabled={isLoading || !isKakaoReady}
       >
         <Image 
           source={{ uri: 'https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png' }} 
           style={styles.kakaoIcon} 
         />
-        <Text style={styles.kakaoButtonText}>
-          {isLoading ? '로그인 중...' : '카카오로 로그인'}
-        </Text>
+        <BodyM style={styles.kakaoButtonText}>
+          {isLoading ? '로그인 중...' : (!isKakaoReady ? '준비 중...' : '카카오로 로그인')}
+        </BodyM>
       </TouchableOpacity>
     </View>
   );
@@ -88,58 +134,34 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: spacing.lg,
+    backgroundColor: colors.white,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 60,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: spacing.xxl + spacing.md, // 60
   },
   subtitle: {
-    fontSize: 16,
-    opacity: 0.8,
+    color: colors.gray[600],
   },
   kakaoButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FEE500',
     borderRadius: 4,
-    padding: 12,
+    padding: spacing.md,
     width: '100%',
     maxWidth: 280,
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
   kakaoIcon: {
     width: 24,
     height: 24,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   kakaoButtonText: {
     color: '#3C1E1E',
-    fontSize: 16,
     fontWeight: '600',
-  },
-  skipButton: {
-    backgroundColor: '#f0f0f0',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#ff9800',
-    alignItems: 'center',
-  },
-  skipButtonText: {
-    color: '#ff5722',
-    fontWeight: 'bold',
   },
 }); 
