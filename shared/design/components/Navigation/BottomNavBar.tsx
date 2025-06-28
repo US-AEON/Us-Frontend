@@ -10,9 +10,8 @@ import WorkspaceFilledIcon from '@/assets/icons/Workspace_filled.svg';
 import UserIcon from '@/assets/icons/User.svg';
 import UserFilledIcon from '@/assets/icons/User_filled.svg';
 import MicrophoneFilledIcon from '@/assets/icons/Microphone_filled.svg';
+import { TabType } from '@/shared/hooks/useNavigation';
 const GradientOrangeImage = require('../../../../assets/images/Gradient_orange.png');
-
-export type TabType = 'home' | 'emergency' | 'record' | 'workspace' | 'user';
 
 interface BottomNavBarProps {
   activeTab: TabType;
@@ -30,19 +29,19 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
         style={styles.centerButton}
         onPress={() => onTabPress('record')}
       >
-                  <View style={styles.gradientContainer}>
-            <Image 
-              source={GradientOrangeImage}
-              style={styles.gradientImage}
+        <View style={styles.gradientContainer}>
+          <Image 
+            source={GradientOrangeImage}
+            style={styles.gradientImage}
+          />
+          <View style={styles.microphoneContainer}>
+            <MicrophoneFilledIcon 
+              width={24} 
+              height={24} 
+              color={colors.primary[800]}
             />
-            <View style={styles.microphoneContainer}>
-              <MicrophoneFilledIcon 
-                width={24} 
-                height={24} 
-                color={colors.primary[800]}
-              />
-            </View>
           </View>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -69,12 +68,12 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
         )}
       </TouchableOpacity>
 
-      {/* 긴급상황 */}
+      {/* 헬프 */}
       <TouchableOpacity 
         style={styles.tabButton}
-        onPress={() => onTabPress('emergency')}
+        onPress={() => onTabPress('help')}
       >
-        {activeTab === 'emergency' ? (
+        {activeTab === 'help' ? (
           <EmergencyFilledIcon 
             width={24} 
             height={24} 
@@ -112,12 +111,12 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
         )}
       </TouchableOpacity>
 
-      {/* 사용자 */}
+      {/* 마이페이지 */}
       <TouchableOpacity 
         style={styles.tabButton}
-        onPress={() => onTabPress('user')}
+        onPress={() => onTabPress('mypage')}
       >
-        {activeTab === 'user' ? (
+        {activeTab === 'mypage' ? (
           <UserFilledIcon 
             width={24} 
             height={24} 
