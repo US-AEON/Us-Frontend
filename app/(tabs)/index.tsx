@@ -1,230 +1,123 @@
 import React, { useState } from 'react';
-import { StyleSheet, Pressable, Alert, Platform } from 'react-native';
-import { Audio } from 'expo-av';
-import { Text, View } from '@/components/Themed';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { 
+  HeadingM, 
+  BodyM, 
+  Checkbox, 
+  RadioGroup, 
+  Button 
+} from '../../shared/design/components';
+import { colors, spacing } from '../../shared/design';
 
-export default function VoiceRecorderScreen() {
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [recordingUri, setRecordingUri] = useState<string | null>(null);
+export default function HomeScreen() {
+  const [checkboxStates, setCheckboxStates] = useState([false, true]);
+  const [pillButtons, setPillButtons] = useState([true, false]);
+  const [radioSelected, setRadioSelected] = useState(0);
 
-  // 권한 요청 및 녹음 시작
-  async function startRecording() {
-    try {
-      // 웹에서는 브라우저 권한, 모바일에서는 앱 권한
-      const permission = await Audio.requestPermissionsAsync();
-      
-      if (permission.status !== 'granted') {
-        Alert.alert('권한 필요', '마이크 사용 권한이 필요합니다.');
-        return;
-      }
+  const handleCheckboxChange = (index: number, checked: boolean) => {
+    const newStates = [...checkboxStates];
+    newStates[index] = checked;
+    setCheckboxStates(newStates);
+  };
 
-      // 오디오 모드 설정
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
+  const handlePillButtonPress = (index: number) => {
+    const newStates = [...pillButtons];
+    newStates[index] = !newStates[index];
+    setPillButtons(newStates);
+  };
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      
-      setRecording(recording);
-      setIsRecording(true);
-      console.log('🎤 녹음 시작!');
-    } catch (err) {
-      console.error('녹음 시작 실패:', err);
-      Alert.alert('오류', '녹음을 시작할 수 없습니다.');
-    }
-  }
-
-  // 녹음 중지
-  async function stopRecording() {
-    if (!recording) return;
-
-    try {
-      console.log('⏹️ 녹음 중지...');
-      setIsRecording(false);
-      await recording.stopAndUnloadAsync();
-      
-      const uri = recording.getURI();
-      setRecordingUri(uri);
-      setRecording(null);
-      
-      console.log('📁 녹음 파일 저장됨:', uri);
-      Alert.alert('완료', '녹음이 완료되었습니다!');
-    } catch (err) {
-      console.error('녹음 중지 실패:', err);
-    }
-  }
-
-  // 녹음 재생
-  async function playRecording() {
-    if (!recordingUri) {
-      Alert.alert('알림', '재생할 녹음이 없습니다.');
-      return;
-    }
-
-    try {
-      console.log('🔊 재생 시작:', recordingUri);
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: recordingUri },
-        { shouldPlay: true }
-      );
-      
-      setSound(sound);
-      setIsPlaying(true);
-
-      // 재생 완료 시 처리
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          setIsPlaying(false);
-          console.log('✅ 재생 완료');
-        }
-      });
-    } catch (err) {
-      console.error('재생 실패:', err);
-      Alert.alert('오류', '재생할 수 없습니다.');
-    }
-  }
-
-  // 재생 중지
-  async function stopPlaying() {
-    if (sound) {
-      await sound.stopAsync();
-      await sound.unloadAsync();
-      setSound(null);
-      setIsPlaying(false);
-      console.log('⏹️ 재생 중지');
-    }
-  }
-
-  // 컴포넌트 언마운트 시 정리
-  React.useEffect(() => {
-    return sound
-      ? () => {
-          console.log('🧹 사운드 정리');
-          sound.unloadAsync();
-        }
-      : undefined;
-  }, [sound]);
+  const handleRadioChange = (index: number) => {
+    setRadioSelected(index);
+    console.log('Radio selected:', index);
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>🎤 음성 녹음기</Text>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <HeadingM style={styles.title}>Control</HeadingM>
       
-      <View style={styles.statusContainer}>
-        <Text style={styles.status}>
-          {isRecording ? '🔴 녹음 중...' : 
-           recordingUri ? '✅ 녹음 완료' : '⚪ 대기 중'}
-        </Text>
-        {Platform.OS === 'web' && (
-          <Text style={styles.webNote}>웹 버전: HTTPS 환경에서만 동작합니다</Text>
-        )}
+      {/* 체크박스 섹션 */}
+      <View style={styles.controlSection}>
+        <View style={styles.checkboxContainer}>
+          <Checkbox 
+            checked={checkboxStates[0]} 
+            onPress={(checked) => handleCheckboxChange(0, checked)}
+          />
+          <Checkbox 
+            checked={checkboxStates[1]} 
+            onPress={(checked) => handleCheckboxChange(1, checked)}
+          />
+        </View>
       </View>
 
-      <View style={styles.buttonContainer}>
-        {/* 녹음 버튼 */}
-        <Pressable
-          style={[styles.button, isRecording ? styles.recordingButton : styles.recordButton]}
-          onPress={isRecording ? stopRecording : startRecording}
-          disabled={isPlaying}
-        >
-          <Text style={styles.buttonText}>
-            {isRecording ? '⏹️ 중지' : '🎤 녹음'}
-          </Text>
-        </Pressable>
-
-        {/* 재생 버튼 */}
-        <Pressable
-          style={[styles.button, styles.playButton, !recordingUri && styles.disabledButton]}
-          onPress={isPlaying ? stopPlaying : playRecording}
-          disabled={!recordingUri || isRecording}
-        >
-          <Text style={styles.buttonText}>
-            {isPlaying ? '⏹️ 중지' : '🔊 재생'}
-          </Text>
-        </Pressable>
+      {/* 라디오 버튼 섹션 */}
+      <View style={styles.controlSection}>
+        <RadioGroup
+          options={['unselected', 'unselected', 'disabled']}
+          selectedIndex={radioSelected}
+          onSelectionChange={handleRadioChange}
+        />
       </View>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.info}>
-          💡 사용법:{'\n'}
-          1. 녹음 버튼을 눌러 음성을 녹음하세요{'\n'}
-          2. 중지 버튼으로 녹음을 마치세요{'\n'}
-          3. 재생 버튼으로 녹음을 들어보세요
-        </Text>
+      {/* 버튼 섹션 */}
+      <View style={styles.controlSection}>
+        <View style={styles.pillContainer}>
+          <Button
+            title="대표"
+            variant="primary"
+            selected={pillButtons[0]}
+            onPress={() => handlePillButtonPress(0)}
+          />
+          <Button
+            title="대표"
+            variant="secondary"
+            selected={pillButtons[1]}
+            onPress={() => handlePillButtonPress(1)}
+          />
+        </View>
       </View>
-    </View>
+
+      <BodyM style={styles.subtitle} color={colors.gray[600]}>
+        디자이너 시안에 따라 UI가 구현될 예정입니다
+      </BodyM>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.white,
+  },
+  contentContainer: {
+    padding: spacing.lg,
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 30,
-  },
-  statusContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  status: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  webNote: {
-    fontSize: 12,
-    opacity: 0.7,
+    marginBottom: spacing.xl,
     textAlign: 'center',
+    color: colors.gray[900],
   },
-  buttonContainer: {
+  controlSection: {
+    borderWidth: 2,
+    borderColor: colors.primary[400],
+    borderStyle: 'dashed',
+    borderRadius: 8,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    backgroundColor: colors.white,
+  },
+  checkboxContainer: {
     flexDirection: 'row',
-    gap: 20,
-    marginBottom: 40,
+    gap: spacing.md,
+    justifyContent: 'center',
   },
-  button: {
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 25,
-    minWidth: 120,
-    alignItems: 'center',
+  pillContainer: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    justifyContent: 'center',
   },
-  recordButton: {
-    backgroundColor: '#007AFF',
-  },
-  recordingButton: {
-    backgroundColor: '#FF3B30',
-  },
-  playButton: {
-    backgroundColor: '#34C759',
-  },
-  disabledButton: {
-    backgroundColor: '#8E8E93',
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  infoContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    padding: 20,
-    borderRadius: 10,
-    maxWidth: 300,
-  },
-  info: {
-    fontSize: 14,
-    lineHeight: 20,
+  subtitle: {
     textAlign: 'center',
+    marginTop: spacing.xl,
   },
-});
+}); 

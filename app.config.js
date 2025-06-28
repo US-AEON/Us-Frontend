@@ -1,0 +1,80 @@
+import 'dotenv/config';
+
+export default {
+  expo: {
+    name: process.env.EXPO_PUBLIC_APP_NAME || "aeon-app",
+    slug: process.env.EXPO_PUBLIC_APP_SLUG || "aeon-app",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/images/icon.png",
+    scheme: "aeonapp",
+    userInterfaceStyle: "automatic",
+    newArchEnabled: true,
+    splash: {
+      image: "./assets/images/splash-icon.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff"
+    },
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: process.env.EXPO_PUBLIC_BUNDLE_ID || "com.anonymous.aeonapp",
+      infoPlist: {
+        NSMicrophoneUsageDescription: "이 앱은 음성 번역을 위해 마이크 접근 권한이 필요합니다."
+      }
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/images/adaptive-icon.png",
+        backgroundColor: "#ffffff"
+      },
+      edgeToEdgeEnabled: true,
+      package: process.env.EXPO_PUBLIC_BUNDLE_ID || "com.anonymous.aeonapp",
+      permissions: ["android.permission.RECORD_AUDIO"]
+    },
+    web: {
+      bundler: "metro",
+      output: "static",
+      favicon: "./assets/images/favicon.png"
+    },
+    plugins: [
+      "expo-router",
+      [
+        "expo-build-properties",
+        {
+          android: {
+            extraMavenRepos: [
+              "https://devrepo.kakao.com/nexus/content/groups/public/"
+            ]
+          }
+        }
+      ],
+      [
+        "@react-native-kakao/core",
+        {
+          nativeAppKey: process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY,
+          android: {
+            authCodeHandlerActivity: true
+          },
+          ios: {
+            handleKakaoOpenUrl: true
+          }
+        }
+      ],
+      "expo-audio"
+    ],
+    experiments: {
+      typedRoutes: true
+    },
+    fonts: [
+      "./assets/fonts/Pretendard-Thin.ttf",
+      "./assets/fonts/Pretendard-ExtraLight.ttf",
+      "./assets/fonts/Pretendard-Light.ttf",
+      "./assets/fonts/Pretendard-Regular.ttf",
+      "./assets/fonts/Pretendard-Medium.ttf",
+      "./assets/fonts/Pretendard-SemiBold.ttf",
+      "./assets/fonts/Pretendard-Bold.ttf",
+      "./assets/fonts/Pretendard-ExtraBold.ttf",
+      "./assets/fonts/Pretendard-Black.ttf"
+    ]
+  }
+}; 
