@@ -5,11 +5,8 @@ import { colors, spacing } from '@/shared/design';
 import { useRouter } from 'expo-router';
 import { login } from '@react-native-kakao/user';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
-import { KAKAO_NATIVE_APP_KEY } from '@env';
+import { Config } from '@/constants/Config';
 import { AuthService } from '@/services/api';
-
-// 카카오 SDK 초기화
-initializeKakaoSDK(KAKAO_NATIVE_APP_KEY);
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -25,11 +22,10 @@ export default function LoginScreen() {
   useEffect(() => {
     const initKakao = async () => {
       try {
-        const KAKAO_NATIVE_APP_KEY = process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY;
-        console.log('카카오 앱 키 확인:', KAKAO_NATIVE_APP_KEY ? '존재함' : '없음');
+        console.log('카카오 앱 키 확인:', Config.KAKAO_NATIVE_APP_KEY ? '존재함' : '없음');
         
-        if (KAKAO_NATIVE_APP_KEY) {
-          await initializeKakaoSDK(KAKAO_NATIVE_APP_KEY);
+        if (Config.KAKAO_NATIVE_APP_KEY) {
+          await initializeKakaoSDK(Config.KAKAO_NATIVE_APP_KEY);
           console.log('카카오 SDK 초기화 성공');
           setIsKakaoReady(true);
         } else {
