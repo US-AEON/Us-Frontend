@@ -28,9 +28,9 @@ export const WorkspaceService = {
     return response.data.data;
   },
   
-  // 워크스페이스 삭제
-  deleteWorkspace: async (id: string): Promise<void> => {
-    await apiClient.delete<StandardResponse<void>>(WORKSPACE.DELETE(id));
+  // 워크스페이스 탈퇴
+  leaveWorkspace: async (): Promise<void> => {
+    await apiClient.delete<StandardResponse<void>>(WORKSPACE.LEAVE());
   },
 };
 

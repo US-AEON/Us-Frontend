@@ -96,7 +96,7 @@ export interface CreateWorkspaceDto {
 }
 
 export interface JoinWorkspaceDto {
-  inviteCode: string;
+  code: string;
 }
 
 export interface Workspace {
