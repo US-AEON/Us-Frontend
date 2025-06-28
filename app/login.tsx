@@ -13,7 +13,10 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [isKakaoReady, setIsKakaoReady] = useState(false);
 
-  // 자동 우회 제거 - 실제 로그인 플로우 사용
+  /*  임시: 로그인 페이지 자동 우회  */
+  useEffect(() => {
+    router.replace('/(tabs)');
+  }, []);
 
   // 카카오 SDK 초기화
   useEffect(() => {
@@ -78,9 +81,8 @@ export default function LoginScreen() {
     try {   
       await AuthService.kakaoLogin({ idToken });
       
-      // 로그인 성공 후 마이크 페이지로 이동
-      console.log('✅ 로그인 성공! 마이크 페이지로 이동합니다.');
-      router.replace('/mic');
+      // 로그인 성공 후 메인 페이지로 이동
+      router.replace('/(tabs)');
       
     } catch (error) {
       console.error('서버 통신 오류:', error);

@@ -4,8 +4,6 @@ import { AUTH } from './endpoints';
 import { RefreshTokenDto, StandardResponse } from './types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-console.log('Config.API_URL', Config.API_URL);
-
 // AsyncStorage 키 상수
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -91,31 +89,16 @@ const addRefreshSubscriber = (callback: (token: string) => void) => {
 // 요청 인터셉터
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    console.log('🔍 API 요청:', config.url);
-    
     // 인증이 필요한 요청에만 토큰 추가
     if (config.url && !config.url.includes('/auth/') && config.url !== AUTH.REFRESH_TOKEN) {
       const token = await tokenStorage.getAccessToken();
-      console.log('🔑 저장된 토큰:', token ? '✅ 존재함' : '❌ 없음');
-      
       if (token) {
         config.headers.set('Authorization', `Bearer ${token}`);
-        console.log('🔒 Authorization 헤더 추가됨');
-        
-        // 토큰의 앞부분만 로그로 출력 (보안상 전체는 출력하지 않음)
-        const tokenPreview = token.substring(0, 20) + '...';
-        console.log('🔑 토큰 미리보기:', tokenPreview);
-      } else {
-        console.log('⚠️ 토큰이 없습니다. 인증이 필요한 요청입니다.');
       }
-    } else {
-      console.log('🔓 인증이 필요하지 않은 요청입니다.');
     }
-    
     return config;
   },
   (error: AxiosError) => {
-    console.log('❌ 요청 인터셉터 에러:', error);
     return Promise.reject(error);
   }
 );
@@ -123,18 +106,10 @@ apiClient.interceptors.request.use(
 // 응답 인터셉터
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log('✅ API 응답 성공:', response.config.url, 'Status:', response.status);
     return response;
   },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-    
-    console.log('❌ API 응답 에러:', {
-      url: originalRequest.url,
-      status: error.response?.status,
-      message: error.message,
-      hasRetried: originalRequest._retry
-    });
     
     // 401 에러이고, 토큰 갱신 시도를 하지 않은 경우
     if (
@@ -142,14 +117,10 @@ apiClient.interceptors.response.use(
       !originalRequest._retry &&
       originalRequest.url !== AUTH.REFRESH_TOKEN
     ) {
-      console.log('🔄 401 에러 감지 - 토큰 갱신 시도');
-      
       if (isRefreshing) {
-        console.log('⏳ 이미 토큰 갱신 중 - 대기열에 추가');
         // 이미 토큰 갱신 중이면 대기열에 추가
         return new Promise((resolve) => {
           addRefreshSubscriber((token: string) => {
-            console.log('🔄 대기열에서 재시도:', originalRequest.url);
             originalRequest.headers.set('Authorization', `Bearer ${token}`);
             originalRequest._retry = true;
             resolve(apiClient(originalRequest));
@@ -158,22 +129,18 @@ apiClient.interceptors.response.use(
       }
       
       // 토큰 갱신 시작
-      console.log('🚀 토큰 갱신 시작');
       isRefreshing = true;
       originalRequest._retry = true;
       
       try {
         const newToken = await refreshAccessToken();
-        console.log('✅ 토큰 갱신 성공');
         isRefreshing = false;
         onRefreshed(newToken);
         
         originalRequest.headers.set('Authorization', `Bearer ${newToken}`);
         
-        console.log('🔄 원래 요청 재시도:', originalRequest.url);
         return apiClient(originalRequest);
       } catch (refreshError) {
-        console.log('❌ 토큰 갱신 실패:', refreshError);
         isRefreshing = false;
         // 로그아웃 처리 또는 로그인 화면으로 이동
         // 여기서는 에러를 그대로 반환
