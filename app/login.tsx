@@ -11,6 +11,11 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [isKakaoReady, setIsKakaoReady] = useState(false);
 
+  /*  임시: 로그인 페이지 자동 우회  */
+  useEffect(() => {
+    router.replace('/(tabs)');
+  }, []);
+
   // 카카오 SDK 초기화
   useEffect(() => {
     const initKakao = async () => {
