@@ -7,7 +7,7 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          display: 'none',
         },
       }}
     >
@@ -15,7 +15,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: '홈',
-          tabBarIcon: () => null,
+          tabBarButton: () => null,
         }}
       />
     </Tabs>

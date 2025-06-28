@@ -1,2 +1,3 @@
+export { BottomNavBar } from './BottomNavBar';
 export { TopNavBar } from './TopNavBar';
-export { BottomNavBar, type TabType } from './BottomNavBar'; 
+export { GlobalNavigationBar } from './GlobalNavigationBar'; 

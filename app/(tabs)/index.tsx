@@ -1,43 +1,45 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import { 
   HeadingM,
-  TopNavBar,
-  BottomNavBar,
-  TabType
+  GlobalNavigationBar,
 } from '../../shared/design/components';
 import { colors, spacing } from '../../shared/design';
 
 export default function HomeScreen() {
-  const [activeTab, setActiveTab] = useState<TabType>('home');
-
-  const handleMenuPress = () => {
-    console.log('Menu pressed');
+  const handleBackPress = () => {
+    console.log('Back pressed');
   };
 
-  const handleTabPress = (tab: TabType) => {
-    setActiveTab(tab);
-    console.log('Tab pressed:', tab);
+  const handleClosePress = () => {
+    console.log('Close pressed');
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <TopNavBar onMenuPress={handleMenuPress} />
-      
-      <View style={styles.container}>
-        <HeadingM style={styles.title}>Navigation Bar System</HeadingM>
-        <View style={styles.content}>
-          {/* 현재 선택된 탭 표시 */}
-          <HeadingM style={styles.activeTabText}>
-            Active Tab: {activeTab}
-          </HeadingM>
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <HeadingM style={styles.title}>GNB</HeadingM>
+        
+        <View style={styles.gnbContainer}>
+          {/* 첫 번째 GNB - 뒤로가기 + 제목 + 닫기 */}
+          <GlobalNavigationBar
+            title="라벨"
+            onBackPress={handleBackPress}
+            onClosePress={handleClosePress}
+            showBackButton={true}
+            showCloseButton={true}
+          />
+          
+          {/* 두 번째 GNB - 뒤로가기 + 제목 + 닫기 */}
+          <GlobalNavigationBar
+            title="라벨"
+            onBackPress={handleBackPress}
+            onClosePress={handleClosePress}
+            showBackButton={true}
+            showCloseButton={true}
+          />
         </View>
-      </View>
-
-      <BottomNavBar 
-        activeTab={activeTab} 
-        onTabPress={handleTabPress} 
-      />
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -50,20 +52,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
+  },
+  contentContainer: {
     padding: spacing.lg,
   },
   title: {
-    textAlign: 'center',
-    color: colors.gray[900],
+    textAlign: 'left',
+    color: colors.black,
     marginBottom: spacing.xl,
+    fontSize: 32,
+    fontWeight: 'bold',
   },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeTabText: {
-    color: colors.primary[600],
-    textAlign: 'center',
+  gnbContainer: {
+    backgroundColor: colors.gray[50],
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.primary[200],
+    borderStyle: 'dashed',
+    overflow: 'hidden',
+    width: '100%',
   },
 }); 
