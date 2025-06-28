@@ -1,5 +1,4 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { Config } from '../../constants/Config';
 import { AUTH } from './endpoints';
 import { RefreshTokenDto, StandardResponse } from './types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,7 +9,7 @@ const REFRESH_TOKEN_KEY = 'refresh_token';
 
 // axios 인스턴스 생성
 const apiClient: AxiosInstance = axios.create({
-  baseURL: Config.API_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -60,7 +59,7 @@ const refreshAccessToken = async (): Promise<string> => {
     }
     
     const response = await axios.post<StandardResponse<{ access_token: string }>>(
-      `${Config.API_URL}${AUTH.REFRESH_TOKEN}`,
+      `${process.env.EXPO_PUBLIC_API_BASE_URL}${AUTH.REFRESH_TOKEN}`,
       { refreshToken } as RefreshTokenDto
     );
     

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Platform } from 'react-native';
 import { tokenStorage } from '@/services/api/axios';
-import { Config } from '@/constants/Config';
 
 export interface ConversationMessage {
   id: string;
@@ -69,7 +68,7 @@ export const useConversation = () => {
         'Authorization': `Bearer ${token}`,
       };
       
-      const response = await fetch(`${Config.API_URL}/api/speech/conversation`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/speech/conversation`, {
         method: 'POST',
         headers,
         body: formData,
