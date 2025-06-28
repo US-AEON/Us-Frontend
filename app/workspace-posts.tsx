@@ -8,7 +8,8 @@ import useNavigation, { TabType } from '@/shared/hooks/useNavigation';
 import { useRouter } from 'expo-router';
 import ChatDotsIcon from '@/assets/icons/Chat_Dots.svg';
 import ArrowLeftIcon from '@/assets/icons/Arrow_Left.svg';
-import { PostService } from '@/services/api';
+import HamburgerIcon from '@/assets/icons/Hamburger.svg';
+import { PostService, WorkspaceService } from '@/services/api';
 import { PostResponse } from '@/services/api/types';
 
 export default function WorkspacePostsScreen() {
@@ -16,6 +17,7 @@ export default function WorkspacePostsScreen() {
   const router = useRouter();
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [workspaceId, setWorkspaceId] = useState<string>('current-workspace');
 
   const handleTabPress = (tab: TabType) => {
     navigateToTab(tab);
@@ -23,6 +25,40 @@ export default function WorkspacePostsScreen() {
 
   const handlePostPress = (postId: string) => {
     router.push(`/post/${postId}` as never);
+  };
+
+  const handleLeaveWorkspace = () => {
+    Alert.alert(
+      'Leave Workspace',
+      'Are you sure you want to leave this workspace?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setLoading(true);
+              await WorkspaceService.leaveWorkspace();
+              Alert.alert('Success', 'You have left the workspace.', [
+                {
+                  text: 'OK',
+                  onPress: () => router.back(),
+                },
+              ]);
+            } catch (error) {
+              console.error('워크스페이스 탈퇴 실패:', error);
+              Alert.alert('Error', 'Failed to leave workspace. Please try again.');
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   // 게시글 목록 불러오기
@@ -76,7 +112,11 @@ export default function WorkspacePostsScreen() {
     <View style={styles.container}>
               {/* 상단 헤더 영역 */}
         <View style={styles.header}>
+          <View style={styles.headerLeft} />
           <TitleL color={colors.gray[900]}>WORKSPACE</TitleL>
+          <TouchableOpacity onPress={handleLeaveWorkspace} style={styles.headerRight}>
+            <HamburgerIcon width={s(24)} height={s(24)} color={colors.gray[900]} />
+          </TouchableOpacity>
         </View>
 
       {/* 메인 콘텐츠 영역 */}
@@ -117,11 +157,21 @@ const styles = StyleSheet.create({
   },
   header: {
     height: vs(56),
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: s(20),
     borderBottomWidth: 1,
     borderBottomColor: colors.gray[200],
+  },
+  headerLeft: {
+    width: s(24),
+  },
+  headerRight: {
+    width: s(24),
+    height: s(24),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   postsList: {

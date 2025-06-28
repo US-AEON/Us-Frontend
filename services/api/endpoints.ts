@@ -37,7 +37,7 @@ export const WORKSPACE = {
   GET_ALL: `${API_BASE_URL}/workspaces`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/workspaces/${id}`,
   UPDATE: (id: string) => `${API_BASE_URL}/workspaces/${id}`,
-  DELETE: (id: string) => `${API_BASE_URL}/workspaces/${id}`,
+  LEAVE: () => `${API_BASE_URL}/workspaces`,
 };
 
 // 음성 관련 엔드포인트
