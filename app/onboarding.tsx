@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, View, Alert } from 'react-native';
 import { colors, typography } from '@/shared/design';
 import { s, vs } from '@/shared/utils/responsive';
@@ -8,6 +8,7 @@ import { Button } from '@/shared/design/components/Control/Button';
 import { Dropdown } from '@/shared/design/components/Control/Dropdown';
 import { UserService } from '@/services/api';
 import LogoSvg from '@/assets/icons/logo.svg';
+import { LANGUAGE_OPTIONS } from '@/shared/constants/languages';
 
 export default function OnboardingScreen() {
   const router = useRouter();
@@ -19,13 +20,6 @@ export default function OnboardingScreen() {
     workLocation: '',
     motherTongue: '',
   });
-
-  const languageOptions = [
-    { label: 'English', value: 'English' },
-    { label: 'ភាសាខ្មែរ', value: 'ភាសាខ្មែរ' },
-    { label: 'Tiếng Việt', value: 'Tiếng Việt' },
-    { label: '한국어', value: '한국어' },
-  ];
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({
@@ -109,7 +103,7 @@ export default function OnboardingScreen() {
             label="Mother tongue"
             placeholder="Select your mother tongue"
             value={formData.motherTongue}
-            options={languageOptions}
+            options={LANGUAGE_OPTIONS}
             onSelect={(value) => handleInputChange('motherTongue', value)}
           />
         </View>
