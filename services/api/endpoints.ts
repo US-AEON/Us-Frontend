@@ -9,8 +9,8 @@ export const AUTH = {
 
 // 사용자 관련 엔드포인트
 export const USER = {
-  PROFILE: `${API_BASE_URL}/user/profile`,
-  UPDATE_PROFILE: `${API_BASE_URL}/user/profile`,
+  PROFILE: `${API_BASE_URL}/users/profile`,
+  UPDATE_PROFILE: `${API_BASE_URL}/users/profile`,
 };
 
 // 게시물 관련 엔드포인트

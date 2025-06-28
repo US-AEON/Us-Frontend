@@ -18,6 +18,27 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+      <Tabs.Screen
+        name="help"
+        options={{
+          title: '도움말',
+          tabBarButton: () => null,
+        }}
+      />
+      <Tabs.Screen
+        name="mypage"
+        options={{
+          title: '마이페이지',
+          tabBarButton: () => null,
+        }}
+      />
+      <Tabs.Screen
+        name="workspace"
+        options={{
+          title: '워크스페이스',
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 } 
