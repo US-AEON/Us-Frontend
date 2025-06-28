@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity, FlatList, Alert, ActivityIndicator } from 'react-native';
 import { s, vs } from '@/shared/utils/responsive';
 import { colors, typography } from '@/shared/design';
 import { BottomNavBar } from '@/shared/design/components/Navigation/BottomNavBar';
@@ -8,62 +8,52 @@ import useNavigation, { TabType } from '@/shared/hooks/useNavigation';
 import { useRouter } from 'expo-router';
 import ChatDotsIcon from '@/assets/icons/Chat_Dots.svg';
 import ArrowLeftIcon from '@/assets/icons/Arrow_Left.svg';
-
-// 임시 워크스페이스 데이터
-const WORKSPACE_POSTS = [
-  {
-    id: 1,
-    name: '김철수',
-    date: '2023.06.28',
-    content: '오늘 작업 중에 안전사고가 발생했습니다. 어떻게 신고해야 하나요?',
-    commentCount: 5,
-  },
-  {
-    id: 2,
-    name: '이영희',
-    date: '2023.06.27',
-    content: '산재보험 신청 절차에 대해 궁금한 점이 있습니다.',
-    commentCount: 3,
-  },
-  {
-    id: 3,
-    name: '박민수',
-    date: '2023.06.26',
-    content: '근로계약서 내용 중 이해가 안 되는 부분이 있어서 질문드립니다.',
-    commentCount: 8,
-  },
-  {
-    id: 4,
-    name: '최지영',
-    date: '2023.06.25',
-    content: '작업장에서 보호구 착용에 대한 규정이 궁금합니다.',
-    commentCount: 2,
-  },
-];
+import { PostService } from '@/services/api';
+import { PostResponse } from '@/services/api/types';
 
 export default function WorkspacePostsScreen() {
   const { navigateToTab } = useNavigation('workspace');
   const router = useRouter();
+  const [posts, setPosts] = useState<PostResponse[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleTabPress = (tab: TabType) => {
     navigateToTab(tab);
   };
 
-  const handlePostPress = (postId: number) => {
+  const handlePostPress = (postId: string) => {
     router.push(`/post/${postId}` as never);
   };
 
-  const renderPostItem = ({ item }: { item: typeof WORKSPACE_POSTS[0] }) => (
+  // 게시글 목록 불러오기
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const fetchedPosts = await PostService.getAllPosts();
+      setPosts(fetchedPosts);
+    } catch (error) {
+      console.error('게시글 불러오기 실패:', error);
+      Alert.alert('오류', '게시글을 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const renderPostItem = ({ item }: { item: PostResponse }) => (
     <TouchableOpacity 
       style={styles.postItem}
       onPress={() => handlePostPress(item.id)}
     >
       <View style={styles.postContent}>
         <BodyM color={colors.black} style={styles.postName}>
-          {item.name}
+          {item.authorName || '익명'}
         </BodyM>
         <CaptionL color={colors.gray[600]} style={styles.postDate}>
-          {item.date}
+          {new Date(item.createdAt).toLocaleDateString('ko-KR')}
         </CaptionL>
         <BodyS color={colors.black} style={styles.postText}>
           {item.content}
@@ -90,15 +80,29 @@ export default function WorkspacePostsScreen() {
         </View>
 
       {/* 메인 콘텐츠 영역 */}
-      <FlatList
-        data={WORKSPACE_POSTS}
-        renderItem={renderPostItem}
-        keyExtractor={(item) => item.id.toString()}
-        style={styles.postsList}
-        contentContainerStyle={styles.postsContainer}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary[400]} />
+          <BodyM color={colors.gray[600]} style={styles.loadingText}>
+            게시글을 불러오는 중...
+          </BodyM>
+        </View>
+      ) : (
+        <FlatList
+          data={posts}
+          renderItem={renderPostItem}
+          keyExtractor={(item) => item.id}
+          style={styles.postsList}
+          contentContainerStyle={styles.postsContainer}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <BodyM color={colors.gray[600]}>게시글이 없습니다.</BodyM>
+            </View>
+          )}
+        />
+      )}
 
       {/* 하단 네비게이션 바 */}
       <BottomNavBar activeTab="workspace" onTabPress={handleTabPress} />
@@ -162,5 +166,19 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: vs(20),
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: vs(16),
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: vs(100),
   },
 }); 

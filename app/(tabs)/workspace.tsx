@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { s, vs } from '@/shared/utils/responsive';
 import { colors } from '@/shared/design';
 import { BottomNavBar } from '@/shared/design/components/Navigation/BottomNavBar';
@@ -8,20 +8,37 @@ import { Button } from '@/shared/design/components/Control/Button';
 import { BodyM } from '@/shared/design/components/Typography';
 import useNavigation, { TabType } from '@/shared/hooks/useNavigation';
 import { useRouter } from 'expo-router';
+import { WorkspaceService } from '@/services/api';
 
 export default function WorkspaceScreen() {
   const { navigateToTab } = useNavigation('workspace');
   const router = useRouter();
   const [workspaceCode, setWorkspaceCode] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleTabPress = (tab: TabType) => {
     navigateToTab(tab);
   };
 
-  const handleEnterWorkspace = () => {
-    if (workspaceCode.trim()) {
-      // 워크스페이스 게시글 목록 페이지로 이동
+  const handleEnterWorkspace = async () => {
+    if (!workspaceCode.trim()) {
+      Alert.alert('접근불가', '워크스페이스 코드를 입력해주세요.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await WorkspaceService.joinWorkspace({
+        code: workspaceCode.trim()
+      });
+      
+      // 성공적으로 참여했으면 워크스페이스 게시글 목록 페이지로 이동
       router.push('/workspace-posts' as never);
+    } catch (error) {
+      console.error('워크스페이스 참여 실패:', error);
+      Alert.alert('접근불가', '워크스페이스 참여에 실패했습니다. 코드를 확인해주세요.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,8 +63,9 @@ export default function WorkspaceScreen() {
         <View style={styles.enterButton}>
           <Button
             variant="primary"
-            title="ENTER"
+            title={loading ? "ENTERING..." : "ENTER"}
             onPress={handleEnterWorkspace}
+            disabled={loading}
           />
         </View>
       </View>
