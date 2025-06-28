@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet, Animated, Alert } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Animated, Alert, StatusBar, Platform } from 'react-native';
 import { Stack } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import MicrophoneFilledIcon from '@/assets/icons/Microphone_filled.svg';
-import ArrowLeftRightIcon from '@/assets/icons/Arrow_Left_Right.svg';
 import { colors } from '@/shared/design';
 import { wp, hp, s, vs, ms } from '@/shared/lib/responsive';
 import { Typography } from '@/shared/design/components/Typography';
 import { TopNavBar } from '@/shared/design/components/Navigation/TopNavBar';
-import { BottomNavBar } from '@/shared/design/components/Navigation/BottomNavBar';
 import { useAudioRecording } from '@/hooks/useAudioRecording';
-import { useConversation } from '@/hooks/useConversation';
 import useNavigation, { TabType } from '@/shared/hooks/useNavigation';
 
 type RecordingState = 'idle' | 'recording' | 'processing' | 'completed';
@@ -31,29 +27,6 @@ export default function RecordPage() {
     stopRecording,
     resetRecording,
   } = useAudioRecording(60); // 최대 1분 녹음
-  
-  // 대화 기능 훅
-  const {
-    isLoading,
-    error,
-    selectedLanguage,
-    supportedLanguages,
-    isPlayingAudio,
-    processConversation,
-    changeLanguage,
-  } = useConversation();
-  
-  // 언어 매핑
-  const languageMap = {
-    'ko-KR': 'SATURI',
-    'en-US': 'ENG',
-    'vi-VN': 'VIE',
-    'th-TH': 'THA',
-    'km-KH': 'KHM',
-  };
-  
-  const sourceLanguage = 'SATURI'; // 한국어 고정
-  const targetLanguage = languageMap[selectedLanguage as keyof typeof languageMap] || 'ENG';
 
   // 실제 녹음 상태와 UI 상태 동기화
   useEffect(() => {
@@ -101,14 +74,12 @@ export default function RecordPage() {
         Alert.alert('권한 오류', '마이크 권한이 필요합니다.');
       }
     } else if (isRecording && recordingState === 'recording') {
-      // 녹음 중지 + API 요청
+      // 녹음 중지
       setRecordingState('processing');
       
       try {
         const recordingUri = await stopRecording();
         if (recordingUri) {
-          // 실제 음성 처리 및 번역
-          await processConversation(recordingUri);
           setRecordingState('completed');
         } else {
           setRecordingState('idle');
@@ -121,12 +92,7 @@ export default function RecordPage() {
     }
   };
 
-  const handleSwapLanguages = () => {
-    // 현재 선택된 언어를 다음 언어로 변경
-    const currentIndex = supportedLanguages.findIndex(lang => lang.code === selectedLanguage);
-    const nextIndex = (currentIndex + 1) % supportedLanguages.length;
-    changeLanguage(supportedLanguages[nextIndex].code);
-  };
+
 
   const handleSave = () => {
     // 바로 초기화면으로 돌리기
@@ -144,38 +110,16 @@ export default function RecordPage() {
           headerShown: false,
         }}
       />
-      <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#000323" />
+      <View style={styles.container}>
         {/* Top Navigation */}
-        <TopNavBar onMenuPress={() => {
-          navigateToTab('home');
-        }} />
-        
-        {/* Language Selection Bar */}
-        <View style={styles.languageBar}>
-          <TouchableOpacity style={styles.languageButton} activeOpacity={0.7}>
-            <Typography variant="labelS" color={colors.white}>
-              {sourceLanguage}
-            </Typography>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.swapButton} 
-            onPress={handleSwapLanguages}
-            activeOpacity={0.7}
-          >
-            <ArrowLeftRightIcon 
-              width={s(20)} 
-              height={s(20)} 
-              fill={colors.white}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.languageButton} activeOpacity={0.7}>
-            <Typography variant="labelS" color={colors.white}>
-              {targetLanguage}
-            </Typography>
-          </TouchableOpacity>
+        <View style={styles.topNavContainer}>
+          <TopNavBar onMenuPress={() => {
+            navigateToTab('home');
+          }} />
         </View>
 
-        {/* Main Recording Area */}
+        {/* Main Recording Area - Fixed Position */}
         <View style={styles.recordingArea}>
           <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
             <TouchableOpacity
@@ -200,37 +144,24 @@ export default function RecordPage() {
               )}
             </TouchableOpacity>
           </Animated.View>
+        </View>
 
-          {/* Complete Button - only show when completed */}
-          {isCompleted && (
+        {/* Complete Button */}
+        {isCompleted && (
+          <View style={styles.saveButtonContainer}>
             <TouchableOpacity 
               style={styles.saveButton}
               onPress={handleSave}
               activeOpacity={0.7}
             >
-              <Typography variant="labelM" color={colors.primary[900]}>
+              <Typography variant="labelM" color={colors.primary[400]}>
                 Save
               </Typography>
             </TouchableOpacity>
-          )}
+          </View>
+        )}
 
-          {/* Error Message */}
-          {error && (
-            <View style={styles.errorMessage}>
-              <Typography variant="bodyS" color={colors.danger}>
-                {error}
-              </Typography>
-            </View>
-          )}
-        </View>
-
-        {/* 하단 네비게이션 바 */}
-        <BottomNavBar 
-          activeTab="record" 
-          onTabPress={(tab: TabType) => navigateToTab(tab)} 
-        />
-
-      </SafeAreaView>
+      </View>
     </>
   );
 }
@@ -239,33 +170,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000323',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : vs(44),
   },
-  languageBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: wp(20),
-    paddingVertical: vs(16),
-    marginTop: vs(20),
-  },
-  languageButton: {
-    backgroundColor: colors.gray[700],
-    paddingHorizontal: wp(16),
-    paddingVertical: vs(8),
-    borderRadius: s(20),
-    minWidth: wp(80),
-    alignItems: 'center',
-  },
-  swapButton: {
-    backgroundColor: colors.gray[700],
-    padding: s(8),
-    borderRadius: s(20),
-    marginHorizontal: wp(12),
+  topNavContainer: {
+    height: vs(60),
   },
   recordingArea: {
-    flex: 1,
+    position: 'absolute',
+    top: '50%',
+    left: 0,
+    right: 0,
+    height: vs(300),
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: vs(-150), 
   },
   recordButton: {
     width: s(154),
@@ -295,21 +213,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary[900],
     borderRadius: s(4),
   },
-  saveButton: {
-    backgroundColor: colors.white,
-    paddingHorizontal: wp(48),
-    paddingVertical: vs(16),
-    borderRadius: s(24),
-    marginTop: vs(32),
-    minWidth: wp(200),
-    alignItems: 'center',
-  },
-  errorMessage: {
-    marginTop: vs(16),
+  saveButtonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     paddingHorizontal: wp(20),
-    paddingVertical: vs(8),
-    backgroundColor: colors.gray[800],
-    borderRadius: s(8),
+    paddingBottom: vs(40),
+    paddingTop: vs(20),
+  },
+  saveButton: {
+    backgroundColor: colors.primary[50],
+    height: vs(56),
+    borderRadius: s(16),
+    justifyContent: 'center',
     alignItems: 'center',
   },
+
 }); 
