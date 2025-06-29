@@ -122,7 +122,7 @@ export default function LoginScreen() {
     <View style={styles.container}>
       {/* 로고 */}
       <View style={styles.logoContainer}>
-        <LogoSvg width={s(59)} height={s(30)} />
+        <LogoSvg width={s(105)} height={s(54)} />
       </View>
       
       {/* 온보딩 이미지 슬라이드 */}

@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { s, vs, ms, wp, hp } from '@/shared/utils/responsive';
 import { colors, typography } from '@/shared/design';
 import { BottomNavBar } from '@/shared/design/components/Navigation/BottomNavBar';
@@ -10,13 +11,23 @@ import BagSvg from '@/assets/icons/bag.svg';
 import EllipseSvg from '@/assets/icons/Ellipse 21.svg';
 
 const CharacterImage = require('@/assets/images/Character.png');
+const Banner1Image = require('@/assets/images/banner1.png');
+const Banner2Image = require('@/assets/images/banner2.png');
 
-// 임시 노트 데이터
-const NOTES = [
-  { id: 1, title: '6월 28일의 음성기록', date: '2025.06.28' },
-  { id: 2, title: '6월 27일의 음성기록', date: '2025.06.27' },
-  { id: 3, title: '6월 26일의 음성기록', date: '2025.06.26' },
-  { id: 4, title: '6월 25일의 음성기록', date: '2025.06.25' },
+// 배너 데이터
+const BANNERS = [
+  { 
+    id: 1, 
+    image: Banner1Image, 
+    url: 'https://eps.go.kr/eo/kr/frnr/index02.eo',
+    title: '고용허가제 서비스'
+  },
+  { 
+    id: 2, 
+    image: Banner2Image, 
+    url: 'https://www.bokjiro.go.kr/ssis-tbu/twataa/wlfareInfo/moveTWAT52011M.do?wlfareInfoId=WLF00003256',
+    title: '복지로 서비스'
+  },
 ];
 
 export default function HomeScreen() {  
@@ -26,8 +37,21 @@ export default function HomeScreen() {
     navigateToTab(tab);
   };
 
+  const handleBannerPress = async (url: string) => {
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        console.log('Cannot open URL:', url);
+      }
+    } catch (error) {
+      console.error('Error opening URL:', error);
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* 상단 헤더 영역 (56px) */}
       <View style={styles.header}>
         <LogoSvg width={s(59)} height={s(30)} />
@@ -75,23 +99,16 @@ export default function HomeScreen() {
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* 노트 섹션 헤더 */}
-        <View style={styles.noteSectionHeader}>
-          <Text style={styles.noteSectionTitle}>NEW NOTE</Text>
-          <TouchableOpacity>
-            <Text style={styles.noteSectionMore}>&gt;</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* 노트 목록 */}
-        <View style={styles.noteList}>
-          {NOTES.map((note) => (
-            <TouchableOpacity key={note.id} style={styles.noteItem}>
-              <View style={styles.noteContent}>
-                <Text style={styles.noteTitle}>{note.title}</Text>
-                <Text style={styles.noteDate}>{note.date}</Text>
-              </View>
-              <Text style={styles.noteArrow}>&gt;</Text>
+        {/* 배너 섹션 */}
+        <View style={styles.bannerSection}>
+          {BANNERS.map((banner) => (
+            <TouchableOpacity 
+              key={banner.id} 
+              style={styles.bannerCard}
+              onPress={() => handleBannerPress(banner.url)}
+              activeOpacity={0.8}
+            >
+              <Image source={banner.image} style={styles.bannerImage} />
             </TouchableOpacity>
           ))}
         </View>
@@ -99,7 +116,7 @@ export default function HomeScreen() {
 
       {/* 하단 네비게이션 바 */}
       <BottomNavBar activeTab="home" onTabPress={handleTabPress} />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -169,52 +186,21 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: vs(-40),
   },
-  noteSectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: vs(52),
-    marginHorizontal: s(20),
-    marginTop: vs(20),
-  },
-  noteSectionTitle: {
-    ...typography.labelM,
-    color: colors.gray[900],
-  },
-  noteSectionMore: {
-    ...typography.titleL,
-    color: colors.gray[500],
-  },
-  noteList: {
+  bannerSection: {
     paddingHorizontal: s(20),
-    paddingTop: vs(12),
-    paddingBottom: vs(20), // 하단 네비게이션 바를 가리지 않도록 여백 추가
-    gap: vs(12), // 노트 사이 간격
+    paddingTop: vs(20), 
+    paddingBottom: vs(40),
+    gap: vs(10),
   },
-  noteItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: vs(16),
-    paddingHorizontal: s(16),
-    backgroundColor: colors.secondary[50],
-    borderRadius: s(8),
+  bannerCard: {
+    height: vs(70),
+    borderRadius: s(12),
+    overflow: 'hidden',
   },
-  noteContent: {
-    flex: 1,
-  },
-  noteTitle: {
-    ...typography.bodyM,
-    color: colors.gray[900],
-    marginBottom: vs(4),
-  },
-  noteDate: {
-    ...typography.captionL,
-    color: colors.gray[500],
-  },
-  noteArrow: {
-    ...typography.titleL,
-    color: colors.gray[400],
+  bannerImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
   characterImage: {
     position: 'absolute',

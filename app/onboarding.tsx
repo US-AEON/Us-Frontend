@@ -65,7 +65,7 @@ export default function OnboardingScreen() {
     <View style={styles.container}>
       {/* 로고 */}
       <View style={styles.logoContainer}>
-        <LogoSvg width={s(59)} height={s(30)} />
+        <LogoSvg width={s(87)} height={s(44)} />
       </View>
 
       {/* 입력 필드들 */}
@@ -73,14 +73,14 @@ export default function OnboardingScreen() {
         <View style={styles.formContainer}>
           <FormField
             label="Name"
-            placeholder="Enter your name"
+            placeholder="Write down your name"
             value={formData.name}
             onChangeText={(value) => handleInputChange('name', value)}
           />
 
           <FormField
             label="Birthdate"
-            placeholder="YYYY"
+            placeholder="YYYY-MM-DD"
             value={formData.birthdate}
             onChangeText={(value) => handleInputChange('birthdate', value)}
           />
@@ -101,7 +101,7 @@ export default function OnboardingScreen() {
 
           <Dropdown
             label="Mother tongue"
-            placeholder="Select your mother tongue"
+            placeholder="Select a language"
             value={formData.motherTongue}
             options={LANGUAGE_OPTIONS}
             onSelect={(value) => handleInputChange('motherTongue', value)}
