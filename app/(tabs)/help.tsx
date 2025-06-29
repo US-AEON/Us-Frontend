@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Linking, Alert } from 'react-native';
 import { s, vs } from '@/shared/utils/responsive';
 import { colors, typography } from '@/shared/design';
 import { BottomNavBar } from '@/shared/design/components/Navigation/BottomNavBar';
@@ -98,9 +98,21 @@ export default function HelpScreen() {
           <View style={styles.lawyerButtonContainer}>
             <Button
               variant="primary"
-              title="CONNECT WITH A LAWYER"
-              onPress={() => {
-                console.log('변호사 연결');
+              title="Learn More About Workers' Compensation"
+              onPress={async () => {
+                try {
+                  const url = 'https://total.comwel.or.kr/';
+                  const supported = await Linking.canOpenURL(url);
+                  
+                  if (supported) {
+                    await Linking.openURL(url);
+                  } else {
+                    Alert.alert('오류', '링크를 열 수 없습니다.');
+                  }
+                } catch (error) {
+                  console.error('링크 열기 오류:', error);
+                  Alert.alert('오류', '링크를 여는 중 문제가 발생했습니다.');
+                }
               }}
             />
           </View>
