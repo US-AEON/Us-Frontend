@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { s, vs } from '@/shared/utils/responsive';
 import { colors } from '@/shared/design';
@@ -8,13 +8,33 @@ import { Button } from '@/shared/design/components/Control/Button';
 import { BodyM } from '@/shared/design/components/Typography';
 import useNavigation, { TabType } from '@/shared/hooks/useNavigation';
 import { useRouter } from 'expo-router';
-import { WorkspaceService } from '@/services/api';
+import { WorkspaceService, UserService } from '@/services/api';
 
 export default function WorkspaceScreen() {
   const { navigateToTab } = useNavigation('workspace');
   const router = useRouter();
   const [workspaceCode, setWorkspaceCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isCheckingWorkspace, setIsCheckingWorkspace] = useState(true);
+
+  useEffect(() => {
+    const checkWorkspaceStatus = async () => {
+      try {
+        const hasWorkspace = await UserService.checkWorkspaceStatus();
+        
+        if (hasWorkspace) {
+          router.replace('/workspace-posts' as never);
+        } else {
+          setIsCheckingWorkspace(false);
+        }
+      } catch (error) {
+        console.error('워크스페이스 상태 체크 오류:', error);
+        setIsCheckingWorkspace(false);
+      }
+    };
+
+    checkWorkspaceStatus();
+  }, []);
 
   const handleTabPress = (tab: TabType) => {
     navigateToTab(tab);
@@ -41,6 +61,26 @@ export default function WorkspaceScreen() {
       setLoading(false);
     }
   };
+
+  // 워크스페이스 상태 체크 중이면 로딩 화면 표시
+  if (isCheckingWorkspace) {
+    return (
+      <View style={styles.container}>
+        {/* 상단 헤더 영역 */}
+        <View style={styles.header}>
+          <BodyM color={colors.gray[900]}>WORKSPACE</BodyM>
+        </View>
+
+        {/* 로딩 표시 */}
+        <View style={styles.loadingContainer}>
+          <BodyM color={colors.gray[600]}>Checking workspace status...</BodyM>
+        </View>
+
+        {/* 하단 네비게이션 바 */}
+        <BottomNavBar activeTab="workspace" onTabPress={handleTabPress} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -98,5 +138,10 @@ const styles = StyleSheet.create({
   },
   enterButton: {
     height: vs(64),
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 }); 
