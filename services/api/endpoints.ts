@@ -11,6 +11,8 @@ export const AUTH = {
 export const USER = {
   PROFILE: `${API_BASE_URL}/users/profile`,
   UPDATE_PROFILE: `${API_BASE_URL}/users/profile`,
+  ONBOARDING_STATUS: `${API_BASE_URL}/users/onboarding-status`,
+  WORKSPACE_STATUS: `${API_BASE_URL}/users/workspace-status`,
 };
 
 // 게시물 관련 엔드포인트
@@ -24,7 +26,7 @@ export const POST = {
 
 // 댓글 관련 엔드포인트
 export const COMMENT = {
-  CREATE: `${API_BASE_URL}/comments`,
+  CREATE: (postId: string) => `${API_BASE_URL}/posts/${postId}/comments`,
   GET_BY_POST: (postId: string) => `${API_BASE_URL}/posts/${postId}/comments`,
   UPDATE: (id: string) => `${API_BASE_URL}/comments/${id}`,
   DELETE: (id: string) => `${API_BASE_URL}/comments/${id}`,

@@ -165,7 +165,7 @@ export default function PostDetailScreen() {
               comments.map(renderComment)
             ) : (
               <View style={styles.emptyCommentsContainer}>
-                <BodyS color={colors.gray[600]}>첫 번째 댓글을 작성해보세요!</BodyS>
+                <BodyS color={colors.gray[600]}>Be the first to comment!</BodyS>
               </View>
             )}
           </View>
@@ -176,7 +176,7 @@ export default function PostDetailScreen() {
       <View style={styles.commentInputContainer}>
         <TextInput
           style={styles.commentInput}
-          placeholder="댓글을 입력하세요..."
+          placeholder="Leave the comments."
           value={commentText}
           onChangeText={setCommentText}
           multiline
@@ -187,7 +187,7 @@ export default function PostDetailScreen() {
           disabled={commentLoading}
         >
           <BodyS color={colors.white}>
-            {commentLoading ? '전송 중...' : '전송'}
+            {commentLoading ? 'Sending...' : 'Enter'}
           </BodyS>
         </TouchableOpacity>
       </View>
@@ -298,8 +298,8 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     marginLeft: s(8),
+    width: s(81),
     height: vs(48),
-    paddingHorizontal: s(16),
     backgroundColor: colors.primary[400],
     borderRadius: s(24),
     justifyContent: 'center',

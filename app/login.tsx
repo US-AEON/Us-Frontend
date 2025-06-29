@@ -107,8 +107,17 @@ export default function LoginScreen() {
     try {   
       await AuthService.kakaoLogin({ idToken });
       
-      // 로그인 성공 후 온보딩 페이지로 이동
-      router.replace('/onboarding' as never);
+      // 로그인 성공 후 상태 체크 후 적절한 페이지로 이동
+      const { UserService } = await import('@/services/api');
+      const isOnboardingComplete = await UserService.checkOnboardingStatus();
+      
+      if (isOnboardingComplete) {
+        // 온보딩 완료되었으면 홈으로
+        router.replace('/(tabs)' as never);
+      } else {
+        // 온보딩 미완료면 온보딩 페이지로
+        router.replace('/onboarding' as never);
+      }
       
     } catch (error) {
       console.error('서버 통신 오류:', error);

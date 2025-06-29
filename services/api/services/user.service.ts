@@ -21,6 +21,18 @@ export const UserService = {
     const response = await apiClient.patch<StandardResponse<UserProfile>>(USER.UPDATE_PROFILE, data);
     return response.data.data;
   },
+
+  // 온보딩 완료 여부 체크
+  checkOnboardingStatus: async (): Promise<boolean> => {
+    const response = await apiClient.get<StandardResponse<boolean>>(USER.ONBOARDING_STATUS);
+    return response.data.data;
+  },
+
+  // 워크스페이스 참여 여부 체크
+  checkWorkspaceStatus: async (): Promise<boolean> => {
+    const response = await apiClient.get<StandardResponse<boolean>>(USER.WORKSPACE_STATUS);
+    return response.data.data;
+  },
 };
 
 export default UserService; 
