@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { s, vs, ms, wp, hp } from '@/shared/utils/responsive';
 import { colors, typography } from '@/shared/design';
 import { BottomNavBar } from '@/shared/design/components/Navigation/BottomNavBar';
 import useNavigation, { TabType } from '@/shared/hooks/useNavigation';
+import { UserService } from '@/services/api';
 import LogoSvg from '@/assets/icons/logo.svg';
 import BagSvg from '@/assets/icons/bag.svg';
 import EllipseSvg from '@/assets/icons/Ellipse 21.svg';
@@ -21,6 +22,23 @@ const NOTES = [
 
 export default function HomeScreen() {  
   const { navigateToTab } = useNavigation('home');
+  const [userName, setUserName] = useState('사용자님');
+
+  // 사용자 프로필 정보 불러오기
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const profile = await UserService.getProfile();
+        if (profile.name) {
+          setUserName(profile.name + '님');
+        }
+      } catch (error) {
+        console.error('프로필 불러오기 실패:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const handleTabPress = (tab: TabType) => {
     navigateToTab(tab);
@@ -40,7 +58,7 @@ export default function HomeScreen() {
           {/* 인사말 텍스트 */}
           <View style={styles.greetingContainer}>
             <Text style={styles.hiText}>HI,</Text>
-            <Text style={styles.nameText}>사용자님</Text>
+            <Text style={styles.nameText}>{userName}</Text>
           </View>
           
           {/* 캐릭터 이미지와 텍스트 */}
