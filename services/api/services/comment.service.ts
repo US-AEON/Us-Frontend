@@ -6,7 +6,7 @@ import { CommentResponse, CreateCommentDto, StandardResponse } from '../types';
 export const CommentService = {
   // 댓글 생성
   createComment: async (data: CreateCommentDto): Promise<CommentResponse> => {
-    const response = await apiClient.post<StandardResponse<CommentResponse>>(COMMENT.CREATE, data);
+    const response = await apiClient.post<StandardResponse<CommentResponse>>(COMMENT.CREATE(data.postId), data);
     return response.data.data;
   },
   

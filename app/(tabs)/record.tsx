@@ -114,7 +114,7 @@ export default function RecordPage() {
       <View style={styles.container}>
         {/* Top Navigation */}
         <View style={styles.topNavContainer}>
-          <TopNavBar onMenuPress={() => {
+          <TopNavBar onBackPress={() => {
             navigateToTab('home');
           }} />
         </View>

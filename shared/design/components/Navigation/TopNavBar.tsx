@@ -4,17 +4,17 @@ import { colors, spacing } from '../../index';
 import ArrowLeftIcon from '@/assets/icons/Arrow_Left.svg';
 
 interface TopNavBarProps {
-  onMenuPress?: () => void;
+  onBackPress?: () => void;
 }
 
 export const TopNavBar: React.FC<TopNavBarProps> = ({ 
-  onMenuPress 
+  onBackPress 
 }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity 
         style={styles.menuButton}
-        onPress={onMenuPress}
+        onPress={onBackPress}
       >
         <ArrowLeftIcon 
           width={24} 
