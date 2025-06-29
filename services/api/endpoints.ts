@@ -26,7 +26,7 @@ export const POST = {
 
 // 댓글 관련 엔드포인트
 export const COMMENT = {
-  CREATE: `${API_BASE_URL}/comments`,
+  CREATE: (postId: string) => `${API_BASE_URL}/posts/${postId}/comments`,
   GET_BY_POST: (postId: string) => `${API_BASE_URL}/posts/${postId}/comments`,
   UPDATE: (id: string) => `${API_BASE_URL}/comments/${id}`,
   DELETE: (id: string) => `${API_BASE_URL}/comments/${id}`,
